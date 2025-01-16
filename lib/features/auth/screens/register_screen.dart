@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../models/user_model.dart';
 import '../providers/auth_provider.dart';
 import 'status_screen.dart';
+import 'login_screen.dart'; // Import your login screen
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -21,9 +22,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Register')),
+      appBar: AppBar(title: const Text('Register')),
+      
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Consumer<AuthProvider>(
           builder: (context, authProvider, child) {
             return Form(
@@ -32,29 +34,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 children: [
                   TextFormField(
                     controller: _usernameController,
-                    decoration: InputDecoration(labelText: 'Username'),
+                    decoration: const InputDecoration(labelText: 'Username'),
                     validator: (value) =>
                         value?.isEmpty ?? true ? 'Please enter username' : null,
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   TextFormField(
                     controller: _emailController,
-                    decoration: InputDecoration(labelText: 'Email'),
+                    decoration: const InputDecoration(labelText: 'Email'),
                     validator: (value) =>
                         value?.isEmpty ?? true ? 'Please enter email' : null,
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   TextFormField(
                     controller: _passwordController,
-                    decoration: InputDecoration(labelText: 'Password'),
+                    decoration: const InputDecoration(labelText: 'Password'),
                     obscureText: true,
                     validator: (value) =>
                         value?.isEmpty ?? true ? 'Please enter password' : null,
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
                     value: _selectedRole,
-                    decoration: InputDecoration(labelText: 'Role'),
+                    decoration: const InputDecoration(labelText: 'Role'),
                     items: ['patient', 'doctor', 'admin']
                         .map((role) => DropdownMenuItem(
                               value: role,
@@ -65,7 +67,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       if (value != null) setState(() => _selectedRole = value);
                     },
                   ),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -84,7 +86,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       await authProvider.register(user);
                                   if (success) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
+                                      const SnackBar(
                                           content: Text(
                                               'Registration successful! Check status.')),
                                     );
@@ -97,26 +99,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   }
                                 }
                               },
-                        child: Text('Register'),
+                        child: const Text('Register'),
                       ),
                       ElevatedButton(
                         onPressed: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => StatusScreen(),
+                              builder: (context) => const StatusScreen(),
                             ),
                           );
                         },
-                        child: Text('Check Status'),
+                        child: const Text('Check Status'),
                       ),
                     ],
                   ),
                   if (authProvider.isLoading)
-                    Padding(
+                    const Padding(
                       padding: EdgeInsets.all(16.0),
                       child: CircularProgressIndicator(),
                     ),
+                  const SizedBox(height: 16),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LoginScreen(),
+                        ),
+                      );
+                    },
+                    child: const Text('Already Registered? Login'),
+                  ),
                 ],
               ),
             );
