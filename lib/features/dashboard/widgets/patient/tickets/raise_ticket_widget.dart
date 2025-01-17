@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../../ticket/screens/ticket_screen.dart';
+import '../../../../tickets/screens/raise_ticket_screen.dart';
 
 class RaiseTicketWidget extends StatelessWidget {
   const RaiseTicketWidget({super.key});
@@ -31,7 +31,7 @@ class RaiseTicketWidget extends StatelessWidget {
               MaterialPageRoute(
                 builder: (context) => const TicketScreen(),
               ),
-            );
+            ); 
           },
           child: const Text('Raise Ticket'),
         ),

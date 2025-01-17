@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'tickets/raise_ticket_widget.dart'; // Import the ticket widget
 
 class PatientDashboard extends StatelessWidget {
@@ -9,8 +8,6 @@ class PatientDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final patientData = user['patient_data'] ?? {};
-
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
@@ -29,93 +26,15 @@ class PatientDashboard extends StatelessWidget {
               const SizedBox(height: 16),
 
               // Raise Ticket Widget
-              const RaiseTicketWidget(), // Add the new ticket widget
+              const RaiseTicketWidget(),
               const SizedBox(height: 16),
 
-              // Patient Details Card
-              Card(
-                elevation: 4,
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Medical Conditions
-                      if (patientData['medical_conditions'] != null)
-                        _buildDetailSection(
-                          title: 'Medical Conditions',
-                          content: patientData['medical_conditions'].join(', '),
-                        ),
+              // Latest Ticket Widget
+              _buildLatestTicketWidget(),
+              const SizedBox(height: 16),
 
-                      // Medical History
-                      if (patientData['medical_history'] != null)
-                        _buildDetailSection(
-                          title: 'Medical History',
-                          content: patientData['medical_history'].join(', '),
-                        ),
-
-                      // Medications
-                      if (patientData['medications'] != null)
-                        _buildDetailSection(
-                          title: 'Medications',
-                          content: patientData['medications'].join(', '),
-                        ),
-
-                      // Allergies
-                      if (patientData['allergies'] != null)
-                        _buildDetailSection(
-                          title: 'Allergies',
-                          content: patientData['allergies'].join(', '),
-                        ),
-
-                      // Age
-                      if (patientData['age'] != null)
-                        _buildDetailSection(
-                          title: 'Age',
-                          content: '${patientData['age']} years',
-                        ),
-
-                      // Height
-                      if (patientData['height'] != null)
-                        _buildDetailSection(
-                          title: 'Height',
-                          content: '${patientData['height']} cm',
-                        ),
-
-                      // Weight
-                      if (patientData['weight'] != null)
-                        _buildDetailSection(
-                          title: 'Weight',
-                          content: '${patientData['weight']} kg',
-                        ),
-
-                      // Blood Group
-                      if (patientData['blood_group'] != null)
-                        _buildDetailSection(
-                          title: 'Blood Group',
-                          content: patientData['blood_group'],
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              // Patient Features Section
-              const Text(
-                'Patient Features:',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              _buildFeatureItem('- Book Appointments'),
-              _buildFeatureItem('- View Health Records'),
-              _buildFeatureItem('- Track Medications'),
-              _buildFeatureItem('- Manage Allergies'),
+              // Medication Widget
+              _buildMedicationWidget(),
             ],
           ),
         ),
@@ -123,51 +42,136 @@ class PatientDashboard extends StatelessWidget {
     );
   }
 
-  // Helper method to build a detail section
-  Widget _buildDetailSection({required String title, required String content}) {
+  // Latest Ticket Widget
+  Widget _buildLatestTicketWidget() {
+    return Card(
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Latest Ticket',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    // Navigate to "See All" tickets screen
+                  },
+                  child: const Text(
+                    'See All',
+                    style: TextStyle(color: Colors.blue),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            _buildTicketDetail('Title', 'Headache and Dizziness'),
+            _buildTicketDetail('Description', 'Persistent headache for 3 days.'),
+            _buildTicketDetail('Blood Pressure', '120/80 mmHg'),
+            _buildTicketDetail('Sugar Level', '110 mg/dL'),
+            _buildTicketDetail('Weight', '70 kg'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Medication Widget
+  Widget _buildMedicationWidget() {
+    return Card(
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Medication',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            _buildMedicationItem('Paracetamol', '500 mg', '8:00 AM'),
+            _buildMedicationItem('Metformin', '1000 mg', '1:00 PM'),
+            _buildMedicationItem('Vitamin D', '2000 IU', '6:00 PM'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Helper method to build ticket details
+  Widget _buildTicketDetail(String title, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
         children: [
           Text(
-            title,
+            '$title: ',
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: Colors.blue,
             ),
           ),
-          const SizedBox(height: 4),
           Text(
-            content,
+            value,
             style: const TextStyle(
               fontSize: 16,
-              color: Colors.black87,
             ),
           ),
-          const Divider(height: 20, thickness: 1),
         ],
       ),
     );
   }
 
-  // Helper method to build a feature item
-  Widget _buildFeatureItem(String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          const Icon(Icons.check_circle, color: Colors.green),
-          const SizedBox(width: 8),
-          Text(
-            text,
-            style: const TextStyle(
-              fontSize: 16,
-              color: Colors.black87,
+  // Helper method to build medication items with a checklist
+  Widget _buildMedicationItem(String name, String dose, String time) {
+    bool isChecked = false; // Local state for checkbox (can be managed with a provider later)
+
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          children: [
+            Checkbox(
+              value: isChecked,
+              onChanged: (value) {
+                // Update state when checkbox is clicked
+                isChecked = value ?? false;
+              },
             ),
-          ),
-        ],
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  '$dose at $time',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

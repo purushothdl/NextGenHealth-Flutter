@@ -1,5 +1,6 @@
 // lib/features/auth/screens/loading_screen.dart
 import 'package:flutter/material.dart';
+import 'package:next_gen_health/features/home/screens/home_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../../dashboard/screens/dashboard_screen.dart';
@@ -39,7 +40,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
 
     if (user['role'] == 'admin') {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const DashboardScreen()),
+        MaterialPageRoute(builder: (_) => const HomeApp()),
       );
       return;
     }
@@ -54,7 +55,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
       );
     } else {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const DashboardScreen()),
+        MaterialPageRoute(builder: (_) => const HomeApp()),
       );
     }
   }
