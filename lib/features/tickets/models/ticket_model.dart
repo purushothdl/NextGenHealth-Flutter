@@ -6,8 +6,8 @@ class Ticket {
   final String? sugarLevel;
   final double? weight;
   final String? symptoms;
-  final String? imagePath;
-  final String? documentPath;
+  final String? imagePath; // URL to the image file
+  final String? documentPath; // URL to the document file
 
   Ticket({
     required this.title,
@@ -20,6 +20,7 @@ class Ticket {
     this.documentPath,
   });
 
+  // Convert Ticket object to a JSON map
   Map<String, dynamic> toJson() {
     return {
       'title': title,
@@ -28,12 +29,11 @@ class Ticket {
       'sugar_level': sugarLevel,
       'weight': weight,
       'symptoms': symptoms,
-      'image': imagePath,
-      'document': documentPath,
+      'image_url': imagePath, // Match backend field name
+      'docs_url': documentPath, // Match backend field name
     };
   }
 }
-
 
 class TicketResponse {
   final String id;
@@ -43,8 +43,8 @@ class TicketResponse {
   final String? sugarLevel; // Nullable
   final double? weight; // Nullable
   final String? symptoms; // Nullable
-  final String? imagePath; // Nullable
-  final String? documentPath; // Nullable
+  final String? imagePath; // Nullable (URL to the image file)
+  final String? documentPath; // Nullable (URL to the document file)
   final String status; // 'pending' or 'resolved'
   final String patientId;
   final String? assignedDoctorId; // Nullable
@@ -64,6 +64,7 @@ class TicketResponse {
     this.assignedDoctorId,
   });
 
+  // Create a TicketResponse object from a JSON map
   factory TicketResponse.fromJson(Map<String, dynamic> json) {
     return TicketResponse(
       id: json['_id'] as String, // Ensure this is not null
@@ -73,8 +74,8 @@ class TicketResponse {
       sugarLevel: json['sugar_level'] as String?, // Nullable
       weight: json['weight']?.toDouble(), // Nullable
       symptoms: json['symptoms'] as String?, // Nullable
-      imagePath: json['image_path'] as String?, // Nullable
-      documentPath: json['document_path'] as String?, // Nullable
+      imagePath: json['image_url'] as String?, // Nullable
+      documentPath: json['docs_url'] as String?, // Nullable
       status: json['status'] as String, // Ensure this is not null
       patientId: json['patient_id'] as String, // Ensure this is not null
       assignedDoctorId: json['assigned_doctor_id'] as String?, // Nullable

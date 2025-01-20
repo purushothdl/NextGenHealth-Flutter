@@ -35,10 +35,23 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.debug
+
+            // Enable code shrinking and obfuscation
+            minifyEnabled true
+            shrinkResources true
+
+            // Use the default ProGuard rules and your custom rules
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // Add the missing dependencies for Tink and annotations
+    implementation 'com.google.errorprone:error_prone_annotations:2.18.0'
+    implementation 'com.google.code.findbugs:jsr305:3.0.2'
 }

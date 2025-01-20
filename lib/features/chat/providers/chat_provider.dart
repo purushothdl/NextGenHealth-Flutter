@@ -8,54 +8,53 @@ class ChatProvider extends ChangeNotifier {
   ChatSession? _activeSession;
   List<ChatSession> _userChats = [];
   bool isLoading = false;
-  bool _isInitialized = false; // Add this flag
+  bool _isInitialized = false;
   String? error;
 
   ChatSession? get activeSession => _activeSession;
   List<ChatSession> get userChats => _userChats;
-  bool get isInitialized => _isInitialized; // Add this getter
+  bool get isInitialized => _isInitialized;
 
-Future<void> loadUserChats(String userId, {String? ticketId, bool forceReload = false}) async {
-  // Skip if already loading or initialized (unless force reload)
-  if (isLoading || (_isInitialized && !forceReload)) return;
-
-  isLoading = true;
-  error = null;
-  _notifyListeners();
-
-  try {
-    final chats = await _chatService.getUserChats(userId, ticketId: ticketId);
-    _userChats = chats; // Update chats even if empty
-    _isInitialized = true;
-    _notifyListeners();
-  } catch (e) {
-    error = e.toString();
-    _notifyListeners();
-  } finally {
-    isLoading = false;
-    _notifyListeners();
-  }
-}
-
-  Future<void> loadChatSession(String sessionId) async {
-    if (isLoading) return; // Avoid duplicate loads
+  Future<void> loadUserChats(String userId, {String? ticketId, bool forceReload = false}) async {
+    if (isLoading || (_isInitialized && !forceReload)) return;
 
     isLoading = true;
     error = null;
-    _notifyListeners();
+    _safeNotifyListeners();
+
+    try {
+      final chats = await _chatService.getUserChats(userId, ticketId: ticketId);
+      _userChats = chats;
+      _isInitialized = true;
+      _safeNotifyListeners();
+    } catch (e) {
+      error = e.toString();
+      _safeNotifyListeners();
+    } finally {
+      isLoading = false;
+      _safeNotifyListeners();
+    }
+  }
+
+  Future<void> loadChatSession(String sessionId) async {
+    if (isLoading) return;
+
+    isLoading = true;
+    error = null;
+    _safeNotifyListeners();
 
     try {
       final session = await _chatService.getChatById(sessionId);
       if (session != _activeSession) {
         _activeSession = session;
-        _notifyListeners();
+        _safeNotifyListeners();
       }
     } catch (e) {
       error = e.toString();
-      _notifyListeners();
+      _safeNotifyListeners();
     } finally {
       isLoading = false;
-      _notifyListeners();
+      _safeNotifyListeners();
     }
   }
 
@@ -65,11 +64,11 @@ Future<void> loadUserChats(String userId, {String? ticketId, bool forceReload = 
     String? imagePath,
     String? documentPath,
   }) async {
-    if (isLoading) return; // Avoid duplicate loads
+    if (isLoading) return;
 
     isLoading = true;
     error = null;
-    _notifyListeners();
+    _safeNotifyListeners();
 
     try {
       final session = await _chatService.startChat(
@@ -80,14 +79,14 @@ Future<void> loadUserChats(String userId, {String? ticketId, bool forceReload = 
       );
       if (session != _activeSession) {
         _activeSession = session;
-        _notifyListeners();
+        _safeNotifyListeners();
       }
     } catch (e) {
       error = e.toString();
-      _notifyListeners();
+      _safeNotifyListeners();
     } finally {
       isLoading = false;
-      _notifyListeners();
+      _safeNotifyListeners();
     }
   }
 
@@ -96,7 +95,7 @@ Future<void> loadUserChats(String userId, {String? ticketId, bool forceReload = 
 
     isLoading = true;
     error = null;
-    _notifyListeners();
+    _safeNotifyListeners();
 
     try {
       final updatedSession = await _chatService.continueChat(
@@ -107,14 +106,14 @@ Future<void> loadUserChats(String userId, {String? ticketId, bool forceReload = 
       );
       if (updatedSession != _activeSession) {
         _activeSession = updatedSession;
-        _notifyListeners();
+        _safeNotifyListeners();
       }
     } catch (e) {
       error = e.toString();
-      _notifyListeners();
+      _safeNotifyListeners();
     } finally {
       isLoading = false;
-      _notifyListeners();
+      _safeNotifyListeners();
     }
   }
 
@@ -123,18 +122,47 @@ Future<void> loadUserChats(String userId, {String? ticketId, bool forceReload = 
     _userChats = [];
     isLoading = false;
     error = null;
-    _notifyListeners();
+    _safeNotifyListeners();
   }
 
   void clearActiveSession() {
     _activeSession = null;
-    _notifyListeners();
+    _safeNotifyListeners();
   }
 
-  // Helper method to defer notifyListeners() until after the current frame
-  void _notifyListeners() {
+  Future<void> deleteChat(String sessionId) async {
+    isLoading = true;
+    error = null;
+    _safeNotifyListeners();
+
+    try {
+      await _chatService.deleteChatSession(sessionId);
+      _userChats.removeWhere((chat) => chat.sessionId == sessionId);
+      _safeNotifyListeners();
+    } catch (e) {
+      error = e.toString();
+      _safeNotifyListeners();
+    } finally {
+      isLoading = false;
+      _safeNotifyListeners();
+    }
+  }
+
+  // Helper method to safely notify listeners
+  void _safeNotifyListeners() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      notifyListeners();
+      if (!isDisposed) {
+        notifyListeners();
+      }
     });
+  }
+
+  // Track if the provider is disposed
+  bool isDisposed = false;
+
+  @override
+  void dispose() {
+    isDisposed = true;
+    super.dispose();
   }
 }

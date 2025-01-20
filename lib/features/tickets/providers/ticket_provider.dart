@@ -1,7 +1,7 @@
+// lib/features/tickets/providers/ticket_provider.dart
 import 'package:flutter/material.dart';
 import '../../../core/services/api/ticket_api_service.dart';
 import '../models/ticket_model.dart'; // For creating tickets
-
 
 class TicketProvider extends ChangeNotifier {
   final TicketApiService _ticketService = TicketApiService();
@@ -31,16 +31,11 @@ class TicketProvider extends ChangeNotifier {
     }
   }
 
-  // Fetch tickets (with caching)
-  Future<void> fetchTickets({bool forceRefresh = false}) async {
-    if (_tickets.isNotEmpty && !forceRefresh) {
-      // Use cached tickets if available and not forcing a refresh
-      return;
-    }
-
+  // Fetch tickets (always fetch from API, no caching)
+  Future<void> fetchTickets() async {
     isLoading = true;
     error = null;
-    notifyListeners();
+    notifyListeners(); // Notify listeners before the async operation
 
     try {
       final response = await _ticketService.getTickets();
@@ -49,13 +44,16 @@ class TicketProvider extends ChangeNotifier {
       error = e.toString();
     } finally {
       isLoading = false;
-      notifyListeners();
+      // Use addPostFrameCallback to notify listeners after the build phase
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifyListeners();
+      });
     }
   }
 
-  // Refresh tickets (force fetch from API)
+  // Refresh tickets (alias for fetchTickets)
   Future<void> refreshTickets() async {
-    await fetchTickets(forceRefresh: true);
+    await fetchTickets();
   }
 
   // Upload a report for a ticket
@@ -91,24 +89,24 @@ class TicketProvider extends ChangeNotifier {
     }
   }
 
-
-Future<Map<String, dynamic>> fetchReport(String ticketId) async {
-  isLoading = true;
-  error = null;
-  notifyListeners();
-
-  try {
-    final response = await _ticketService.getReport(ticketId);
-    isLoading = false;
+  // Fetch a report for a ticket
+  Future<Map<String, dynamic>> fetchReport(String ticketId) async {
+    isLoading = true;
+    error = null;
     notifyListeners();
-    return response;
-  } catch (e) {
-    error = e.toString();
-    isLoading = false;
-    notifyListeners();
-    throw e;
+
+    try {
+      final response = await _ticketService.getReport(ticketId);
+      isLoading = false;
+      notifyListeners();
+      return response;
+    } catch (e) {
+      error = e.toString();
+      isLoading = false;
+      notifyListeners();
+      throw e;
+    }
   }
-}
 
   // Fetch user details (patient or doctor)
   Future<Map<String, dynamic>> getUserDetails(String userId) async {

@@ -1,11 +1,12 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'features/admin/providers/admin_provider.dart';
 import 'features/auth/providers/auth_provider.dart';
 import 'features/tickets/providers/ticket_provider.dart';
-import 'features/chat/providers/chat_provider.dart'; // Import ChatProvider
+import 'features/chat/providers/chat_provider.dart';
 import 'features/auth/screens/loading_screen.dart';
-import 'features/tickets/screens/ticket_screen.dart'; // Import the TicketScreen
+import 'features/home/screens/home_screen.dart'; // Import HomeApp
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,11 +18,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final routeObserver = RouteObserver<ModalRoute<void>>();
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => TicketProvider()), // Add TicketProvider here
-        ChangeNotifierProvider(create: (_) => ChatProvider()), // Add ChatProvider here
+        ChangeNotifierProvider(create: (_) => TicketProvider()),
+        ChangeNotifierProvider(create: (_) => ChatProvider()),
+        ChangeNotifierProvider(create: (_) => AdminProvider()),
+        Provider<RouteObserver<ModalRoute<void>>>(create: (_) => routeObserver),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -30,7 +35,8 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
           useMaterial3: true,
         ),
-        home: const LoadingScreen(),
+        home: const LoadingScreen(), // Start with LoadingScreen
+        navigatorObservers: [routeObserver],
       ),
     );
   }

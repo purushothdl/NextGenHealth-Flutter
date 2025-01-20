@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../dashboard/screens/dashboard_screen.dart';
-import '../../tickets/screens/ticket_screen.dart';
+import '../../tickets/screens/tickets_screen.dart';
 import '../../chat/screens/chat_screen.dart';
 import '../../chat/screens/chat_history_screen.dart';
 import '../../profile/screens/profile_screen.dart';
@@ -48,7 +48,6 @@ class _HomeAppState extends State<HomeApp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Display the selected screen
       body: IndexedStack(
         index: _selectedIndex,
         children: _screens,

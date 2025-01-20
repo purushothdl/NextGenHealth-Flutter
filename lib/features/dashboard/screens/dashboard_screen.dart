@@ -1,12 +1,12 @@
+// lib/features/dashboard/screens/dashboard_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import '../role based/admin/admin_dashboard_screen.dart';
+import '../role based/doctor/doctor_dashboard.dart';
+import '../role based/patient/patient_dashboard.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../auth/screens/register_screen.dart';
-import '../widgets/admin/admin_dashboard.dart';
-import '../widgets/doctor/doctor_dashboard.dart';
-import '../widgets/patient/patient_dashboard.dart';
-
+import '../role based/shared/header_widget.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -17,30 +17,24 @@ class DashboardScreen extends StatelessWidget {
     final user = authProvider.currentUser;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dashboard'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await authProvider.logout();
-              if (context.mounted) {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) =>  RegisterScreen()),
-                );
-              }
-            },
-          ),
-        ],
+      appBar: HeaderWidget(
+        username: user?['username'] ?? 'User', 
+        role: user?['role'] ?? 'Guest', 
+        profileImageUrl: user?['profileImageUrl'],
+        onNotificationPressed: () {
+          // Navigate to Notifications Screen
+          // Navigator.push(context, MaterialPageRoute(builder: (context) => NotificationsScreen()));
+        },
       ),
+      backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: _buildDashboardContent(user),
+        child: _buildDashboardContent(user, context),
       ),
     );
   }
 
-  Widget _buildDashboardContent(Map<String, dynamic>? user) {
+  Widget _buildDashboardContent(Map<String, dynamic>? user, BuildContext context) {
     if (user == null) {
       return const Center(child: Text('No user data available.'));
     }
@@ -49,11 +43,11 @@ class DashboardScreen extends StatelessWidget {
 
     switch (role) {
       case 'admin':
-        return AdminDashboard(user: user);
+        return AdminDashboard(user: user); 
       case 'patient':
-        return PatientDashboard(user: user);
+        return PatientDashboard(user: user); 
       case 'doctor':
-        return DoctorDashboard(user: user);
+        return DoctorDashboard(user: user); 
       default:
         return const Center(child: Text('Invalid role.'));
     }

@@ -1,4 +1,6 @@
 // lib/features/chat/widgets/chat_input_widget.dart
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'dart:io'; // For File
 import 'chat_file_upload_widget.dart';
@@ -21,14 +23,17 @@ class _ChatInputWidgetState extends State<ChatInputWidget> {
   final TextEditingController _controller = TextEditingController();
   String? _selectedImagePath;
   String? _selectedDocumentPath;
+  Timer? _debounceTimer;
 
   @override
   void dispose() {
     _controller.dispose();
+    _debounceTimer?.cancel();
     super.dispose();
   }
 
   void _handleSend() {
+    if (!mounted) return; // Ensure the widget is still mounted
     if (_controller.text.trim().isNotEmpty || _selectedImagePath != null || _selectedDocumentPath != null) {
       widget.onSendMessage(
         _controller.text.trim(),
@@ -41,6 +46,14 @@ class _ChatInputWidgetState extends State<ChatInputWidget> {
         _selectedDocumentPath = null;
       });
     }
+  }
+
+  void _onTextChanged(String text) {
+    if (_debounceTimer?.isActive ?? false) _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      if (!mounted) return; // Ensure the widget is still mounted
+      // Perform your update here
+    });
   }
 
   Widget _buildFilePreview() {
@@ -101,6 +114,7 @@ class _ChatInputWidgetState extends State<ChatInputWidget> {
                     border: InputBorder.none,
                   ),
                   onSubmitted: (_) => _handleSend(),
+                  onChanged: _onTextChanged, // Add debounced onChanged
                 ),
               ),
               IconButton(

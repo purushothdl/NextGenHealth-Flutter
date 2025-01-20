@@ -179,6 +179,21 @@ Future<ChatSession> continueChat({
   }
 }
 
+
+Future<void> deleteChatSession(String sessionId) async {
+  try {
+    final response = await _dio.delete('${ApiEndpoints.endChat}/$sessionId');
+    if (response.statusCode != 200) {
+      throw Exception(response.data['detail'] ?? 'Failed to delete chat session');
+    }
+  } catch (e) {
+    throw _handleError(e);
+  }
+}
+
+
+
+
   String _handleError(dynamic error) {
     if (error is DioException) {
       final response = error.response?.data;

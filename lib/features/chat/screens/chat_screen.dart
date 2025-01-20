@@ -6,8 +6,8 @@ import '../widgets/chat_input_widget.dart';
 import '../widgets/chat_message_widget.dart';
 
 class ChatScreen extends StatefulWidget {
-  final String? sessionId;
-  final String? ticketId;
+  final String? sessionId; // Add sessionId as an optional parameter
+  final String? ticketId; // Add ticketId as an optional parameter
 
   const ChatScreen({
     super.key,
@@ -25,20 +25,23 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
+    // Load the chat session if sessionId is provided
     if (widget.sessionId != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        context.read<ChatProvider>().loadChatSession(widget.sessionId!);
+        if (mounted) {
+          final chatProvider = context.read<ChatProvider>();
+          chatProvider.loadChatSession(widget.sessionId!);
+        }
       });
     }
-  }
-
-  void _scrollToBottom() {
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
+    // Start the chat with the ticketId if provided
+    else if (widget.ticketId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          final chatProvider = context.read<ChatProvider>();
+          chatProvider.startChat(ticketId: widget.ticketId!);
+        }
+      });
     }
   }
 
@@ -77,9 +80,11 @@ class _ChatScreenState extends State<ChatScreen> {
               ChatInputWidget(
                 enabled: !chatProvider.isLoading,
                 onSendMessage: (message, {imagePath, documentPath}) async {
+                  if (!mounted) return; // Ensure the widget is still mounted
+
                   if (chatProvider.activeSession == null) {
                     await chatProvider.startChat(
-                      ticketId: widget.ticketId,
+                      ticketId: widget.ticketId, // Pass ticketId if available
                       initialMessage: message,
                       imagePath: imagePath,
                       documentPath: documentPath,
@@ -91,7 +96,10 @@ class _ChatScreenState extends State<ChatScreen> {
                       documentPath: documentPath,
                     );
                   }
-                  _scrollToBottom();
+
+                  if (mounted) {
+                    _scrollToBottom();
+                  }
                 },
               ),
             ],
@@ -99,5 +107,15 @@ class _ChatScreenState extends State<ChatScreen> {
         },
       ),
     );
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
   }
 }

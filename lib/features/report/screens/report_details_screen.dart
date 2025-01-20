@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:pdfx/pdfx.dart';
-import '../../shared widgets/task_result/message_dialog_popup.dart';
+import '../../shared/widgets/task_result/message_dialog_popup.dart';
 import '../../tickets/providers/ticket_provider.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
@@ -210,17 +210,17 @@ class _ReportDetailsScreenState extends State<ReportDetailsScreen> {
     );
   }
 
-  Future<void> _launchUrl(String url) async {
-    final Uri uri = Uri.parse(url);
-    print('Attempting to launch URL: $url');
-    if (await canLaunchUrl(uri)) {
-      print('Launching URL: $url');
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      print('Could not launch $url');
-      throw 'Could not launch $url';
-    }
-  }
+  // Future<void> _launchUrl(String url) async {
+  //   final Uri uri = Uri.parse(url);
+  //   print('Attempting to launch URL: $url');
+  //   if (await canLaunchUrl(uri)) {
+  //     print('Launching URL: $url');
+  //     await launchUrl(uri, mode: LaunchMode.externalApplication);
+  //   } else {
+  //     print('Could not launch $url');
+  //     throw 'Could not launch $url';
+  //   }
+  // }
 }
 
 class PDFViewerScreen extends StatefulWidget {

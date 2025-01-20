@@ -1,19 +1,19 @@
-// lib/features/tickets/screens/ticket_screen.dart
+// lib/features/tickets/screens/raise_ticket_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../shared widgets/task_result/message_dialog_popup.dart';
+import '../../shared/widgets/task_result/message_dialog_popup.dart';
 import '../providers/ticket_provider.dart';
 import '../models/ticket_model.dart';
 import '../widgets/raise_ticket/file_upload_widget.dart';
 
-class TicketScreen extends StatefulWidget {
-  const TicketScreen({super.key});
+class RaiseTicketScreen extends StatefulWidget {
+  const RaiseTicketScreen({super.key});
 
   @override
-  State<TicketScreen> createState() => _TicketScreenState();
+  State<RaiseTicketScreen> createState() => _TicketScreenState();
 }
 
-class _TicketScreenState extends State<TicketScreen> {
+class _TicketScreenState extends State<RaiseTicketScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
