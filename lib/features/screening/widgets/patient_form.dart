@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../profile/screens/widgets/update profile/list_input_field.dart';
+import 'text_input_field.dart';
 
 class PatientForm extends StatelessWidget {
   final TextEditingController medicalConditionsController;
@@ -26,47 +28,80 @@ class PatientForm extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        TextFormField(
-          controller: medicalConditionsController,
-          decoration: const InputDecoration(labelText: 'Medical Conditions (comma-separated)'),
+        ListInputField(
+          label: 'Medical Conditions',
+          items: medicalConditionsController.text.split(',').where((item) => item.isNotEmpty).toList(),
+          onChanged: (items) {
+            medicalConditionsController.text = items.join(',');
+          },
+        ),
+        ListInputField(
+          label: 'Medical History',
+          items: medicalHistoryController.text.split(',').where((item) => item.isNotEmpty).toList(),
+          onChanged: (items) {
+            medicalHistoryController.text = items.join(',');
+          },
+        ),
+        ListInputField(
+          label: 'Medications',
+          items: medicationsController.text.split(',').where((item) => item.isNotEmpty).toList(),
+          onChanged: (items) {
+            medicationsController.text = items.join(',');
+          },
+        ),
+        ListInputField(
+          label: 'Allergies',
+          items: allergiesController.text.split(',').where((item) => item.isNotEmpty).toList(),
+          onChanged: (items) {
+            allergiesController.text = items.join(',');
+          },
         ),
         const SizedBox(height: 16),
-        TextFormField(
-          controller: medicalHistoryController,
-          decoration: const InputDecoration(labelText: 'Medical History (comma-separated)'),
-        ),
-        const SizedBox(height: 16),
-        TextFormField(
-          controller: medicationsController,
-          decoration: const InputDecoration(labelText: 'Medications (comma-separated)'),
-        ),
-        const SizedBox(height: 16),
-        TextFormField(
-          controller: allergiesController,
-          decoration: const InputDecoration(labelText: 'Allergies (comma-separated)'),
-        ),
-        const SizedBox(height: 16),
-        TextFormField(
+        TextInputField(
           controller: ageController,
-          decoration: const InputDecoration(labelText: 'Age'),
+          labelText: 'Age',
           keyboardType: TextInputType.number,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your age';
+            }
+            return null;
+          },
         ),
         const SizedBox(height: 16),
-        TextFormField(
+        TextInputField(
           controller: heightController,
-          decoration: const InputDecoration(labelText: 'Height (in cm)'),
+          labelText: 'Height (in cm)',
           keyboardType: TextInputType.number,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your height';
+            }
+            return null;
+          },
         ),
         const SizedBox(height: 16),
-        TextFormField(
+        TextInputField(
           controller: weightController,
-          decoration: const InputDecoration(labelText: 'Weight (in kg)'),
+          labelText: 'Weight (in kg)',
           keyboardType: TextInputType.number,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your weight';
+            }
+            return null;
+          },
         ),
         const SizedBox(height: 16),
-        TextFormField(
+        TextInputField(
           controller: bloodGroupController,
-          decoration: const InputDecoration(labelText: 'Blood Group'),
+          labelText: 'Blood Group',
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your blood group';
+            }
+            return null;
+          },
         ),
       ],
     );

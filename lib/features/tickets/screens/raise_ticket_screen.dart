@@ -1,10 +1,9 @@
-// lib/features/tickets/screens/raise_ticket_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../report/widgets/file_upload_widget.dart';
 import '../../shared/widgets/task_result/message_dialog_popup.dart';
 import '../providers/ticket_provider.dart';
 import '../models/ticket_model.dart';
-import '../widgets/raise_ticket/file_upload_widget.dart';
 
 class RaiseTicketScreen extends StatefulWidget {
   const RaiseTicketScreen({super.key});
@@ -41,7 +40,10 @@ class _TicketScreenState extends State<RaiseTicketScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Raise a Ticket'),
+        title: const Text('Raise a Ticket', style: TextStyle(fontWeight: FontWeight.bold)),
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.blue,
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -49,9 +51,11 @@ class _TicketScreenState extends State<RaiseTicketScreen> {
           key: _formKey,
           child: ListView(
             children: [
-              TextFormField(
+              // Title Field
+              _buildTextField(
                 controller: _titleController,
-                decoration: const InputDecoration(labelText: 'Title'),
+                label: 'Title',
+                hint: 'Enter the ticket title',
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a title';
@@ -59,9 +63,13 @@ class _TicketScreenState extends State<RaiseTicketScreen> {
                   return null;
                 },
               ),
-              TextFormField(
+              const SizedBox(height: 20),
+
+              // Description Field
+              _buildTextField(
                 controller: _descriptionController,
-                decoration: const InputDecoration(labelText: 'Description'),
+                label: 'Description',
+                hint: 'Enter a detailed description',
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a description';
@@ -69,24 +77,37 @@ class _TicketScreenState extends State<RaiseTicketScreen> {
                   return null;
                 },
               ),
-              TextFormField(
+              const SizedBox(height: 20),
+
+              // Blood Pressure Field
+              _buildTextField(
                 controller: _bpController,
-                decoration: const InputDecoration(labelText: 'Blood Pressure'),
+                label: 'Blood Pressure',
+                hint: 'Enter your blood pressure',
               ),
-              TextFormField(
+              const SizedBox(height: 20),
+
+              // Sugar Level Field
+              _buildTextField(
                 controller: _sugarLevelController,
-                decoration: const InputDecoration(labelText: 'Sugar Level'),
+                label: 'Sugar Level',
+                hint: 'Enter your sugar level',
               ),
-              TextFormField(
-                controller: _weightController,
-                decoration: const InputDecoration(labelText: 'Weight'),
-                keyboardType: TextInputType.number,
-              ),
-              TextFormField(
+              const SizedBox(height: 20),
+
+              // Weight Field (Custom Integer Input)
+              _buildWeightField(),
+              const SizedBox(height: 20),
+
+              // Symptoms Field
+              _buildTextField(
                 controller: _symptomsController,
-                decoration: const InputDecoration(labelText: 'Symptoms'),
+                label: 'Symptoms',
+                hint: 'Enter your symptoms',
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
+
+              // Image Upload
               FileUploadWidget(
                 label: 'Image',
                 filePath: _imagePath,
@@ -96,7 +117,9 @@ class _TicketScreenState extends State<RaiseTicketScreen> {
                   });
                 },
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
+
+              // Document Upload
               FileUploadWidget(
                 label: 'Document',
                 filePath: _documentPath,
@@ -106,46 +129,208 @@ class _TicketScreenState extends State<RaiseTicketScreen> {
                   });
                 },
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
+
+              // Submit Button
               ElevatedButton(
-onPressed: () async {
-  if (_formKey.currentState!.validate()) {
-    final ticket = Ticket(
-      title: _titleController.text,
-      description: _descriptionController.text,
-      bp: _bpController.text.isEmpty ? null : _bpController.text,
-      sugarLevel: _sugarLevelController.text.isEmpty ? null : _sugarLevelController.text,
-      weight: _weightController.text.isEmpty ? null : double.tryParse(_weightController.text),
-      symptoms: _symptomsController.text.isEmpty ? null : _symptomsController.text,
-      imagePath: _imagePath,
-      documentPath: _documentPath,
-    );
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    final ticket = Ticket(
+                      title: _titleController.text,
+                      description: _descriptionController.text,
+                      bp: _bpController.text.isEmpty ? null : _bpController.text,
+                      sugarLevel: _sugarLevelController.text.isEmpty ? null : _sugarLevelController.text,
+                      weight: _weightController.text.isEmpty ? null : double.tryParse(_weightController.text),
+                      symptoms: _symptomsController.text.isEmpty ? null : _symptomsController.text,
+                      imagePath: _imagePath,
+                      documentPath: _documentPath,
+                    );
 
-    final success = await ticketProvider.createTicket(ticket);
-    if (context.mounted) {
-      showDialog(
-        context: context,
-        builder: (context) => SuccessErrorPopup(
-          isSuccess: success,
-          message: success ? 'Ticket created successfully!' : (ticketProvider.error ?? 'Failed to create ticket'),
-        ),
-      );
+                    final success = await ticketProvider.createTicket(ticket);
+                    if (context.mounted) {
+                      showDialog(
+                        context: context,
+                        builder: (context) => SuccessErrorPopup(
+                          isSuccess: success,
+                          message: success ? 'Ticket created successfully!' : (ticketProvider.error ?? 'Failed to create ticket'),
+                        ),
+                      );
 
-      if (success) {
-        // Clear the form and close the screen after a short delay
-        Future.delayed(const Duration(seconds: 2), () {
-          Navigator.of(context).pop();
-        });
-      }
-    }
-  }
-},
-                child: const Text('Submit Ticket'),
+                      if (success) {
+                        // Clear the form and close the screen after a short delay
+                        Future.delayed(const Duration(seconds: 2), () {
+                          Navigator.of(context).pop();
+                        });
+                      }
+                    }
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  backgroundColor: Colors.blue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  'Submit Ticket',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+Widget _buildTextField({
+  required TextEditingController controller,
+  required String label,
+  required String hint,
+  String? Function(String?)? validator,
+}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        label,
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: Colors.blue,
+        ),
+      ),
+      const SizedBox(height: 8),
+      Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.blue.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: TextFormField(
+          controller: controller,
+          maxLines: null, // Allows for unlimited lines
+          keyboardType: TextInputType.multiline, // Enables multiline input
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: TextStyle(
+              color: Colors.blueGrey[300],
+              fontSize: 14,
+            ),
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(
+                color: Colors.blueGrey[100]!,
+                width: 1.5,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(
+                color: Colors.blue,
+                width: 1.5,
+              ),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
+          ),
+          style: TextStyle(
+            color: Colors.blueGrey[800],
+            fontSize: 14,
+          ),
+          validator: validator,
+        ),
+      ),
+    ],
+  );
+}
+  Widget _buildWeightField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Weight',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Colors.blue,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.blue.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: TextFormField(
+            controller: _weightController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              hintText: 'Enter your weight (in kg)',
+              hintStyle: TextStyle(
+                color: Colors.blueGrey[300],
+                fontSize: 14,
+              ),
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: Colors.blueGrey[100]!,
+                  width: 1.5,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(
+                  color: Colors.blue,
+                  width: 1.5,
+                ),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 14,
+              ),
+              suffixIcon: const Icon(
+                Icons.scale,
+                color: Colors.blueGrey,
+              ),
+            ),
+            style: TextStyle(
+              color: Colors.blueGrey[800],
+              fontSize: 14,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

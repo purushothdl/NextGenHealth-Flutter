@@ -58,6 +58,7 @@ class ChatFileUploadWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<UploadType>(
+      color: Colors.white,
       icon: const Icon(Icons.attach_file),
       onSelected: (UploadType type) {
         if (type == UploadType.image) {

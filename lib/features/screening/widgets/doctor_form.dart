@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../profile/screens/widgets/update profile/list_input_field.dart';
+import 'text_input_field.dart';
 
 class DoctorForm extends StatelessWidget {
   final TextEditingController specializationController;
@@ -22,36 +24,71 @@ class DoctorForm extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        TextFormField(
-          controller: specializationController,
-          decoration: const InputDecoration(labelText: 'Specialization'),
+        ListInputField(
+          label: 'Specialization',
+          items: specializationController.text.split(',').where((item) => item.isNotEmpty).toList(),
+          onChanged: (items) {
+            specializationController.text = items.join(',');
+          },
         ),
+
         const SizedBox(height: 16),
-        TextFormField(
-          controller: yearsOfExperienceController,
-          decoration: const InputDecoration(labelText: 'Years of Experience'),
-          keyboardType: TextInputType.number,
+        ListInputField(
+          label: 'Qualifications',
+          items: qualificationController.text.split(',').where((item) => item.isNotEmpty).toList(),
+          onChanged: (items) {
+            qualificationController.text = items.join(',');
+          },
         ),
+
         const SizedBox(height: 16),
-        TextFormField(
-          controller: qualificationController,
-          decoration: const InputDecoration(labelText: 'Qualification'),
-        ),
-        const SizedBox(height: 16),
-        TextFormField(
-          controller: licenseNumberController,
-          decoration: const InputDecoration(labelText: 'License Number'),
-        ),
-        const SizedBox(height: 16),
-        TextFormField(
+        TextInputField(
           controller: certificationsController,
-          decoration: const InputDecoration(labelText: 'Certifications'),
+          labelText: 'Hospital',
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter the hospital name';
+            }
+            return null;
+          },
         ),
+
         const SizedBox(height: 16),
-        TextFormField(
-          controller: ageController,
-          decoration: const InputDecoration(labelText: 'Age'),
+        TextInputField(
+          controller: yearsOfExperienceController,
+          labelText: 'Years of Experience',
           keyboardType: TextInputType.number,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter years of experience';
+            }
+            return null;
+          },
+        ),
+
+        const SizedBox(height: 16),
+        TextInputField(
+          controller: licenseNumberController,
+          labelText: 'License Number',
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter license number';
+            }
+            return null;
+          },
+        ),
+
+        const SizedBox(height: 16),
+        TextInputField(
+          controller: ageController,
+          labelText: 'Age',
+          keyboardType: TextInputType.number,
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your age';
+            }
+            return null;
+          },
         ),
       ],
     );

@@ -1,13 +1,14 @@
 // lib/features/chat/screens/chat_screen.dart
 import 'package:flutter/material.dart';
+import 'package:next_gen_health/features/chat/screens/chat_history_screen.dart';
 import 'package:provider/provider.dart';
 import '../providers/chat_provider.dart';
-import '../widgets/chat_input_widget.dart';
-import '../widgets/chat_message_widget.dart';
+import '../widgets/chatbot/chat_input_widget.dart';
+import '../widgets/chatbot/chat_message_widget.dart';
 
 class ChatScreen extends StatefulWidget {
-  final String? sessionId; // Add sessionId as an optional parameter
-  final String? ticketId; // Add ticketId as an optional parameter
+  final String? sessionId;
+  final String? ticketId;
 
   const ChatScreen({
     super.key,
@@ -25,7 +26,10 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    // Load the chat session if sessionId is provided
+    _initializeChat();
+  }
+
+  void _initializeChat() {
     if (widget.sessionId != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
@@ -33,13 +37,19 @@ class _ChatScreenState extends State<ChatScreen> {
           chatProvider.loadChatSession(widget.sessionId!);
         }
       });
-    }
-    // Start the chat with the ticketId if provided
-    else if (widget.ticketId != null) {
+    } else if (widget.ticketId != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           final chatProvider = context.read<ChatProvider>();
           chatProvider.startChat(ticketId: widget.ticketId!);
+        }
+      });
+    } else {
+      // Clear active session if no sessionId or ticketId is provided
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          final chatProvider = context.read<ChatProvider>();
+          chatProvider.clearActiveSession();
         }
       });
     }
@@ -55,8 +65,24 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Medical Assistant'),
+        title: const Text(
+          'NextGenHealth Chatbot',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const ChatHistoryScreen()),
+            );
+          },
+        ),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: Colors.blue,
       ),
+      backgroundColor: const Color.fromARGB(255, 246, 246, 246),
       body: Consumer<ChatProvider>(
         builder: (context, chatProvider, _) {
           return Column(
@@ -80,11 +106,11 @@ class _ChatScreenState extends State<ChatScreen> {
               ChatInputWidget(
                 enabled: !chatProvider.isLoading,
                 onSendMessage: (message, {imagePath, documentPath}) async {
-                  if (!mounted) return; // Ensure the widget is still mounted
+                  if (!mounted) return;
 
                   if (chatProvider.activeSession == null) {
                     await chatProvider.startChat(
-                      ticketId: widget.ticketId, // Pass ticketId if available
+                      ticketId: widget.ticketId,
                       initialMessage: message,
                       imagePath: imagePath,
                       documentPath: documentPath,

@@ -40,7 +40,7 @@ class _TicketScreenState extends State<TicketScreen> {
       appBar: AppBar(
         title: const Text(
           'Tickets',
-          style: TextStyle(color: Colors.white), // White text for visibility
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold), // White text for visibility
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white), // White back icon
@@ -51,10 +51,12 @@ class _TicketScreenState extends State<TicketScreen> {
             );
           },
         ),
+        centerTitle: true,
         backgroundColor: Colors.blue, // Blue background
         elevation: 0,
         automaticallyImplyLeading: false, // Disable default back button
       ),
+      backgroundColor: Colors.white,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

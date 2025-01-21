@@ -1,8 +1,8 @@
 // lib/features/profile/screens/role_based/doctor_profile_widget.dart
 import 'package:flutter/material.dart';
 import '../../models/profile_model.dart';
-import '../widgets/shared/detail_section.dart';
-import '../widgets/patient/section_item.dart'; // Reuse SectionItem for list items
+import '../widgets/profile/shared/detail_section.dart';
+import '../widgets/profile/patient/section_item.dart'; // Reuse SectionItem for list items
 
 class DoctorProfileWidget extends StatelessWidget {
   final Profile profile;
@@ -28,18 +28,12 @@ class DoctorProfileWidget extends StatelessWidget {
             const Text(
               'Doctor Details',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.blue,
               ),
             ),
-            const SizedBox(height: 8),
-            if (doctorData['age'] != null)
-              DetailSection(
-                icon: Icons.cake,
-                title: 'Age',
-                content: '${doctorData['age'].toInt()} years', // Convert float to int
-              ),
+            const SizedBox(height: 12),
             if (doctorData['specialization'] != null)
               SectionItem(
                 icon: Icons.medical_services,
@@ -51,6 +45,12 @@ class DoctorProfileWidget extends StatelessWidget {
                 icon: Icons.school,
                 title: 'Qualifications',
                 items: doctorData['qualifications'],
+              ),
+            if (doctorData['age'] != null)
+              DetailSection(
+                icon: Icons.cake,
+                title: 'Age',
+                content: '${doctorData['age'].toInt()} years', // Convert float to int
               ),
             if (doctorData['hospital'] != null)
               DetailSection(

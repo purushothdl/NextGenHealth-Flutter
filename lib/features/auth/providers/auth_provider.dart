@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/services/api/auth_api_service.dart';
 import '../../../core/services/storage/storage_service.dart';
+import '../../chat/providers/app_state_providers.dart';
 import '../models/user_model.dart';
 
 class AuthProvider extends ChangeNotifier {

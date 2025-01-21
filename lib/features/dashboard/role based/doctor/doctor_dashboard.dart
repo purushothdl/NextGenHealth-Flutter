@@ -25,6 +25,7 @@ class DoctorDashboard extends StatelessWidget {
               title: 'Welcome, Dr. ${user['username']}!',
               subtitle: 'Manage your appointments and tickets efficiently.',
               buttonText: 'View Tickets',
+              imagePath: 'assets/images/dashboard/doctor_welcome_bg.jpg',
               onButtonPressed: () {
                 // Navigate to TicketScreen
                 Navigator.push(
@@ -116,14 +117,16 @@ class DoctorDashboard extends StatelessWidget {
             const SizedBox(height: 24),
 
             // Feedback Card
-            FeedbackCard(
-              title: 'Feedback',
-              buttonText: 'Give Feedback',
-              onButtonPressed: () {
-                // Navigate to FeedbackScreen
-                // Navigator.push(context, MaterialPageRoute(builder: (context) => FeedbackScreen()));
-              },
-            ),
+FeedbackCard(
+  onGiveFeedback: () {
+    print('Give Feedback button pressed!');
+    // Add your logic here for handling feedback submission
+  },
+  onViewFeedback: () {
+    print('See Your Feedback button pressed!');
+    // Add your logic here for navigating to feedback history
+  },
+)
           ],
         ),
       ),

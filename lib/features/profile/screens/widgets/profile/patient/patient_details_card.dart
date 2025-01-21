@@ -24,12 +24,20 @@ class PatientDetailsCard extends StatelessWidget {
             const Text(
               'Patient Details',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.blue,
               ),
             ),
             const SizedBox(height: 16),
+
+            if (patientData['medical_history'] != null)
+              SectionItem(
+                icon: Icons.medication_liquid,
+                title: 'Medical History',
+                items: patientData['medical_history'],
+              ),
+
 
             // Medical Conditions
             if (patientData['medical_conditions'] != null)

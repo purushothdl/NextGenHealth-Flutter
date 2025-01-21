@@ -6,6 +6,7 @@ import '../../chat/screens/chat_screen.dart';
 import '../../report/screens/report_details_screen.dart';
 import '../../report/screens/report_upload_screen.dart';
 import '../models/ticket_model.dart';
+import '../widgets/ticket_details/assign_doctor_widget.dart';
 import '../widgets/ticket_details/details_section.dart';
 import '../widgets/ticket_details/health_metrics_section.dart';
 import '../widgets/ticket_details/image_section.dart';
@@ -14,13 +15,12 @@ import '../widgets/ticket_details/user_details_section.dart';
 import 'analyse_ticket_screen.dart';
 import '../../../core/services/api/admin_api_service.dart';
 
-
 class TicketDetailsScreen extends StatelessWidget {
   final TicketResponse ticket;
   final Map<String, dynamic> patientDetails;
   final Map<String, dynamic>? doctorDetails;
   final bool isDoctor;
-  final bool isAdmin; // Add this parameter
+  final bool isAdmin;
 
   const TicketDetailsScreen({
     Key? key,
@@ -28,7 +28,7 @@ class TicketDetailsScreen extends StatelessWidget {
     required this.patientDetails,
     this.doctorDetails,
     required this.isDoctor,
-    required this.isAdmin, // Add this parameter
+    required this.isAdmin,
   }) : super(key: key);
 
   @override
@@ -39,6 +39,8 @@ class TicketDetailsScreen extends StatelessWidget {
           'Ticket Details',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.blue,
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -74,165 +76,137 @@ class TicketDetailsScreen extends StatelessWidget {
                 details: doctorDetails!,
                 isPatient: false,
               ),
-            const SizedBox(height: 16),
-            if (isDoctor)
-              Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ChatScreen(ticketId: ticket.id),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                    backgroundColor: Colors.blue,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text(
-                    'Analyse Ticket',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-            if (isDoctor)
-              Column(
-                children: [
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => ReportUploadScreen(ticket: ticket),
+            const SizedBox(height: 24),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return Column(
+                    children: [
+                      if (isDoctor) ...[
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildActionButton(
+                                context: context,
+                                icon: Icons.medical_services_rounded,
+                                label: 'Analyse Ticket',
+                                color: const Color(0xFF3BAEE9),
+                                onPressed: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ChatScreen(ticketId: ticket.id),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: _buildActionButton(
+                                context: context,
+                                icon: Icons.upload_rounded,
+                                label: 'Upload Report',
+                                color: const Color(0xFF00BFA5),
+                                onPressed: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => ReportUploadScreen(ticket: ticket),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                      backgroundColor: Colors.green,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text(
-                      'Upload Report',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            if (!isDoctor)
-              Column(
-                children: [
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => ReportDetailsScreen(ticketId: ticket.id),
+                        const SizedBox(height: 16),
+                      ],
+                      if (!isDoctor && !isAdmin)
+                        _buildActionButton(
+                          context: context,
+                          icon: Icons.description_rounded,
+                          label: 'View Report',
+                          color: const Color(0xFF3BAEE9),
+                          onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ReportDetailsScreen(ticketId: ticket.id),
+                            ),
+                          ),
                         ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                      backgroundColor: Colors.orange,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text(
-                      'View Report',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
+                      if (isAdmin) ...[
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildActionButton(
+                                context: context,
+                                icon: Icons.description_rounded,
+                                label: 'View Report',
+                                color: const Color(0xFF3BAEE9),
+                                onPressed: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => ReportDetailsScreen(ticketId: ticket.id),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: AssignDoctorWidget(ticketId: ticket.id),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                    ],
+                  );
+                },
               ),
-            // Only show "Assign to Doctor" button if the user is an admin
-            if (isAdmin)
-              Column(
-                children: [
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => _assignTicketToDoctor(context, ticket.id),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                      backgroundColor: Colors.purple,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text(
-                      'Assign to Doctor',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            ),
+            const SizedBox(height: 24),
           ],
         ),
       ),
     );
   }
 
-  Future<void> _assignTicketToDoctor(BuildContext context, String ticketId) async {
-    final adminApiService = AdminApiService();
-    final doctors = await adminApiService.getDoctors();
-
-    final selectedDoctor = await showDialog<Map<String, dynamic>>(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Assign to Doctor'),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: doctors.length,
-              itemBuilder: (context, index) {
-                final doctor = doctors[index];
-                return ListTile(
-                  title: Text(doctor['username']),
-                  subtitle: Text(doctor['email']),
-                  onTap: () {
-                    Navigator.pop(context, doctor);
-                  },
-                );
-              },
-            ),
+  Widget _buildActionButton({
+    required BuildContext context,
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onPressed,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
           ),
-        );
-      },
+        ],
+      ),
+      child: ElevatedButton.icon(
+        icon: Icon(icon, size: 20, color: Colors.white),
+        label: Text(
+          label,
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          backgroundColor: color,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 0,
+        ),
+      ),
     );
-
-    if (selectedDoctor != null) {
-      try {
-        await adminApiService.assignTicketToDoctor(ticketId, selectedDoctor['_id']);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Ticket assigned successfully!')),
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to assign ticket: $e')),
-        );
-      }
-    }
   }
 }

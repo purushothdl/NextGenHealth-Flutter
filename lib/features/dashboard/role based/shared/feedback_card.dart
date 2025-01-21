@@ -1,101 +1,125 @@
-// lib/features/dashboard/role based/shared/feedback_card.dart
-
+// lib/features/dashboard/role_based/shared/feedback_card.dart
 import 'package:flutter/material.dart';
 
 class FeedbackCard extends StatelessWidget {
-  final String title;
-  final String buttonText;
-  final VoidCallback onButtonPressed;
+  final VoidCallback onGiveFeedback;
+  final VoidCallback onViewFeedback;
 
   const FeedbackCard({
     super.key,
-    required this.title,
-    required this.buttonText,
-    required this.onButtonPressed,
+    required this.onGiveFeedback,
+    required this.onViewFeedback,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.all(16.0),
+      margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.blue.shade100, Colors.blue.shade50],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+        borderRadius: BorderRadius.circular(20),
+        image: const DecorationImage(
+          image: AssetImage('assets/images/feedback_bg.jpg'), // Add your image
+          fit: BoxFit.cover,
         ),
-        borderRadius: BorderRadius.circular(16.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.blue.withOpacity(0.2),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Title with Icon
+            // Title with blue background
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 6,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.blue.shade700,
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: const Text(
+                'Feedback',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                  letterSpacing: 1.1,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // Message
+            const Text(
+              'Your thoughts shape our service!\nShare your experience with us.',
+              style: TextStyle(
+                fontSize: 15,
+                color: Colors.white,
+                height: 1.4,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Buttons Row
             Row(
               children: [
-                Icon(
-                  Icons.feedback,
-                  size: 28,
-                  color: Colors.blue.shade800,
+                Expanded(
+                  child: _buildActionButton(
+                    text: 'Give Feedback',
+                    backgroundColor: Colors.blue.shade700,
+                    textColor: Colors.white,
+                    onPressed: onGiveFeedback,
+                  ),
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue.shade800,
+                Container(
+                  width: 1,
+                  height: 40,
+                  color: Colors.white.withOpacity(0.3),
+                  margin: const EdgeInsets.symmetric(horizontal: 8),
+                ),
+                Expanded(
+                  child: _buildActionButton(
+                    text: 'See Your Feedback',
+                    backgroundColor: Colors.white,
+                    textColor: Colors.blue.shade700,
+                    onPressed: onViewFeedback,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-
-            // Description
-            const Text(
-              'We value your feedback! Let us know how we can improve your experience.',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Feedback Button
-            Center(
-              child: ElevatedButton(
-                onPressed: onButtonPressed,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 12,
-                  ),
-                  backgroundColor: Colors.blue.shade800,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  elevation: 5,
-                  shadowColor: Colors.blue.withOpacity(0.3),
-                ),
-                child: Text(
-                  buttonText,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButton({
+    required String text,
+    required Color backgroundColor,
+    required Color textColor,
+    required VoidCallback onPressed,
+  }) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: backgroundColor,
+        foregroundColor: textColor,
+        elevation: 1,
+        shadowColor: Colors.black.withOpacity(0.1),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 0),
+      ),
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.8,
         ),
       ),
     );

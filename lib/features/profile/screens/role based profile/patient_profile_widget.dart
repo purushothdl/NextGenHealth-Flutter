@@ -2,8 +2,8 @@
 import 'package:flutter/material.dart';
 
 import '../../models/profile_model.dart';
-import '../widgets/patient/health_metrics_card.dart';
-import '../widgets/patient/patient_details_card.dart';
+import '../widgets/profile/patient/health_metrics_card.dart';
+import '../widgets/profile/patient/patient_details_card.dart';
 
 class PatientProfileWidget extends StatelessWidget {
   final Profile profile;

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'features/admin/providers/admin_provider.dart';
 import 'features/auth/providers/auth_provider.dart';
+import 'features/chat/providers/app_state_providers.dart';
 import 'features/tickets/providers/ticket_provider.dart';
 import 'features/chat/providers/chat_provider.dart';
 import 'features/auth/screens/loading_screen.dart';
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => TicketProvider()),
         ChangeNotifierProvider(create: (_) => ChatProvider()),
         ChangeNotifierProvider(create: (_) => AdminProvider()),
+        ChangeNotifierProvider(create: (_) => AppStateProvider()),
         Provider<RouteObserver<ModalRoute<void>>>(create: (_) => routeObserver),
       ],
       child: MaterialApp(

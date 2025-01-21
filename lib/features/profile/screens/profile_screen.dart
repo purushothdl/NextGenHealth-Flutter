@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../auth/screens/loading_screen.dart';
+import '../../chat/providers/app_state_providers.dart';
 import '../../home/screens/home_screen.dart';
 import '../../shared/utils/string_utils.dart';
 import '../models/profile_model.dart';
-import 'role based/common_profile_widget.dart';
-import 'role based/doctor_profile_widget.dart';
-import 'role based/patient_profile_widget.dart';
+import 'role based profile/common_profile_widget.dart';
+import 'role based profile/doctor_profile_widget.dart';
+import 'role based profile/patient_profile_widget.dart';
 import 'update_profile_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -130,36 +131,163 @@ class ProfileScreen extends StatelessWidget {
   }
 
 
-  Widget _buildLogoutButton(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton.icon(
-        onPressed: () async {
-          final authProvider = Provider.of<AuthProvider>(context, listen: false);
-          await authProvider.logout();
-
-          // Navigate to the LoadingScreen
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const LoadingScreen(),
-            ),
-          );
-        },
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 16.0),
-          backgroundColor: Colors.red.shade100,
-          foregroundColor: Colors.red.shade900,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0),
-          ),
+Widget _buildLogoutButton(BuildContext context) {
+  return SizedBox(
+    width: double.infinity,
+    child: ElevatedButton.icon(
+      onPressed: () => _confirmLogout(context),
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 16.0),
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
         ),
-        icon: const Icon(Icons.logout),
-        label: const Text(
-          'Logout',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        elevation: 2,
+        shadowColor: Colors.blue.shade200,
+      ),
+      icon: const Icon(Icons.logout_rounded),
+      label: const Text(
+        'Logout',
+        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+      ),
+    ),
+  );
+}
+
+Future<void> _confirmLogout(BuildContext context) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (context) => Dialog(
+      backgroundColor: Colors.white,
+      // backgroundColor: Theme.of(context).dialogBackgroundColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+      ),
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Warning Icon
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: const BoxDecoration(
+                color: Colors.orange,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.logout_rounded,
+                size: 32,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Title
+            Text(
+              'Logout of Your Account?',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // Subtitle
+            Text(
+              'You will need to sign in again to access your account. Are you sure you want to logout?',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Action Buttons
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                // Cancel Button
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      side: BorderSide(
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
+                    ),
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+
+                // Logout Button
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 2,
+                      shadowColor: Colors.orange.shade300,
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.logout_rounded, size: 18),
+                        SizedBox(width: 8),
+                        Text(
+                          'Logout',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
-    );
+    ),
+  );
+
+  if (confirmed == true) {
+    final appStateProvider = Provider.of<AppStateProvider>(context, listen: false);
+    appStateProvider.setAppStart(true);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    await authProvider.logout();
+
+    // Navigate to the LoadingScreen
+    if (context.mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const LoadingScreen(),
+        ),
+      );
+    }
   }
+}
 }

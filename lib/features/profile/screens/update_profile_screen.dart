@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../models/profile_model.dart';
+import 'widgets/update profile/common_field.dart';
+import 'widgets/update profile/doctor_fields.dart';
+import 'widgets/update profile/patient_fields.dart';
 
 class UpdateProfileScreen extends StatefulWidget {
   const UpdateProfileScreen({super.key});
@@ -30,47 +33,37 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
     _isLoading = false;
   }
 
-void _updateField(String key, dynamic value) {
-  setState(() {
-    if (key.startsWith('patient_data.')) {
-      // Handle nested patient_data fields
-      final patientDataKey = key.replaceFirst('patient_data.', '');
-      _updatedFields['patient_data'] ??= {}; // Initialize patient_data if it doesn't exist
-      _updatedFields['patient_data'][patientDataKey] = value;
-    } else if (key.startsWith('doctor_data.')) {
-      // Handle nested doctor_data fields
-      final doctorDataKey = key.replaceFirst('doctor_data.', '');
-      _updatedFields['doctor_data'] ??= {}; // Initialize doctor_data if it doesn't exist
-      _updatedFields['doctor_data'][doctorDataKey] = value;
-    } else {
-      // Handle top-level fields (e.g., username, email)
-      _updatedFields[key] = value;
-    }
-  });
-}
+  void _updateField(String key, dynamic value) {
+    setState(() {
+      if (key.startsWith('patient_data.')) {
+        _updatedFields['patient_data'] ??= {};
+        _updatedFields['patient_data'][key.replaceFirst('patient_data.', '')] = value;
+      } else if (key.startsWith('doctor_data.')) {
+        _updatedFields['doctor_data'] ??= {};
+        _updatedFields['doctor_data'][key.replaceFirst('doctor_data.', '')] = value;
+      } else {
+        _updatedFields[key] = value;
+      }
+    });
+  }
 
+  Future<void> _saveProfile() async {
+    if (_formKey.currentState!.validate()) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final success = await authProvider.updateProfile(_updatedFields);
 
-Future<void> _saveProfile() async {
-  if (_formKey.currentState!.validate()) {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-
-    // Ensure only updated fields are sent
-    final payload = _updatedFields;
-
-    final success = await authProvider.updateProfile(payload);
-
-    if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile updated successfully!')),
-      );
-      Navigator.pop(context); // Return to the previous screen
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update profile: ${authProvider.error}')),
-      );
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile updated successfully!')),
+        );
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update profile: ${authProvider.error}')),
+        );
+      }
     }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -82,13 +75,16 @@ Future<void> _saveProfile() async {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Update Profile'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.save),
-            onPressed: _saveProfile,
+        title: const Text(
+          'Update Profile',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold, // Make the text bold
           ),
-        ],
+        ),
+        centerTitle: true, // Center the title
+        backgroundColor: Colors.blue,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -97,91 +93,31 @@ Future<void> _saveProfile() async {
           child: Column(
             children: [
               // Common Fields
-              _buildTextField('Username', _profile.username, (value) {
-                _updateField('username', value);
-              }),
-              _buildTextField('Email', _profile.email, (value) {
-                _updateField('email', value);
-              }),
+              CommonFields(
+                profile: _profile,
+                updateField: _updateField,
+              ),
 
               // Role-Specific Fields
-              if (_profile.role == 'patient') ..._buildPatientFields(),
-              if (_profile.role == 'doctor') ..._buildDoctorFields(),
+              if (_profile.role == 'patient')
+                PatientFields(
+                  patientData: _profile.patientData ?? {},
+                  updateField: _updateField,
+                ),
+              if (_profile.role == 'doctor')
+                DoctorFields(
+                  doctorData: _profile.doctorData ?? {},
+                  updateField: _updateField,
+                ),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildTextField(String label, String initialValue, Function(String) onChanged) {
-    return TextFormField(
-      initialValue: initialValue,
-      decoration: InputDecoration(
-        labelText: label,
-        border: const OutlineInputBorder(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _saveProfile,
+        backgroundColor: Colors.blue,
+        child: const Icon(Icons.save, color: Colors.white),
       ),
-      onChanged: onChanged,
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please enter $label';
-        }
-        return null;
-      },
     );
-  }
-
-List<Widget> _buildPatientFields() {
-  final patientData = _profile.patientData ?? {};
-  return [
-    _buildTextField('Medical Conditions', patientData['medical_conditions']?.join(', ') ?? '', (value) {
-      _updateField('patient_data.medical_conditions', value.split(', '));
-    }),
-    _buildTextField('Medical History', patientData['medical_history']?.join(', ') ?? '', (value) {
-      _updateField('patient_data.medical_history', value.split(', '));
-    }),
-    _buildTextField('Medications', patientData['medications']?.join(', ') ?? '', (value) {
-      _updateField('patient_data.medications', value.split(', '));
-    }),
-    _buildTextField('Allergies', patientData['allergies']?.join(', ') ?? '', (value) {
-      _updateField('patient_data.allergies', value.split(', '));
-    }),
-    _buildTextField('Age', patientData['age']?.toString() ?? '', (value) {
-      _updateField('patient_data.age', double.tryParse(value));
-    }),
-    _buildTextField('Height', patientData['height']?.toString() ?? '', (value) {
-      _updateField('patient_data.height', double.tryParse(value));
-    }),
-    _buildTextField('Weight', patientData['weight']?.toString() ?? '', (value) {
-      _updateField('patient_data.weight', double.tryParse(value));
-    }),
-    _buildTextField('Blood Group', patientData['blood_group'] ?? '', (value) {
-      _updateField('patient_data.blood_group', value);
-    }),
-  ];
-}
-
-  List<Widget> _buildDoctorFields() {
-    final doctorData = _profile.doctorData ?? {};
-    return [
-      _buildTextField('Age', doctorData['age']?.toString() ?? '', (value) {
-        _updateField('doctor_data.age', int.tryParse(value));
-      }),
-      _buildTextField('Experience Years', doctorData['experience_years']?.toString() ?? '', (value) {
-        _updateField('doctor_data.experience_years', int.tryParse(value));
-      }),
-      _buildTextField('Hospital', doctorData['hospital'] ?? '', (value) {
-        _updateField('doctor_data.hospital', value);
-      }),
-      _buildTextField('License Number', doctorData['license_number'] ?? '', (value) {
-        _updateField('doctor_data.license_number', value);
-      }),
-      _buildTextField('Qualifications', doctorData['qualifications']?.join(', ') ?? '', (value) {
-        _updateField('doctor_data.qualifications', value.split(', '));
-      }),
-      _buildTextField('Specialization', doctorData['specialization']?.join(', ') ?? '', (value) {
-        _updateField('doctor_data.specialization', value.split(', '));
-      }),
-    ];
   }
 }

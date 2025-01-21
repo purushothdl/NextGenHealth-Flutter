@@ -38,14 +38,14 @@ class HealthMetricsCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 16),
                 MetricBox(
-                  icon: Icons.favorite_outline,
+                  icon: Icons.monitor_weight,
                   label: 'Weight',
                   value: patientData['weight'] ?? 'N/A',
                   unit: 'kg',
                 ),
                 const SizedBox(width: 16),
                 MetricBox(
-                  icon: Icons.water_drop_outlined,
+                  icon: Icons.height,
                   label: 'Height',
                   value: patientData['height'] ?? 'N/A',
                   unit: 'cm',

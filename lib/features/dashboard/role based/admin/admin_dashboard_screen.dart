@@ -25,6 +25,7 @@ class AdminDashboard extends StatelessWidget {
               title: 'Welcome, ${user['username']}!',
               subtitle: 'Manage your platform efficiently with the admin dashboard.',
               buttonText: 'View Users',
+              imagePath: 'assets/images/dashboard/admin_welcome_bg.jpg',
               onButtonPressed: () {
                 Navigator.push(
                   context,
@@ -63,7 +64,7 @@ class AdminDashboard extends StatelessWidget {
                 children: [
                   ServiceItem(
                     icon: Icons.list_alt,
-                    label: 'View Tickets',
+                    label: 'Tickets',
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -75,7 +76,7 @@ class AdminDashboard extends StatelessWidget {
                   ),
                   ServiceItem(
                     icon: Icons.verified_user,
-                    label: 'Approve Users',
+                    label: 'Approve',
                     onPressed: () {
                       Navigator.push(
                         context,
@@ -108,13 +109,15 @@ class AdminDashboard extends StatelessWidget {
 
             // Feedback Card
             FeedbackCard(
-              title: 'Feedback',
-              buttonText: 'Give Feedback',
-              onButtonPressed: () {
-                // Navigate to FeedbackScreen
-                // Navigator.push(context, MaterialPageRoute(builder: (context) => FeedbackScreen()));
+              onGiveFeedback: () {
+                print('Give Feedback button pressed!');
+                // Add your logic here for handling feedback submission
               },
-            ),
+              onViewFeedback: () {
+                print('See Your Feedback button pressed!');
+                // Add your logic here for navigating to feedback history
+              },
+            )
           ],
         ),
       ),

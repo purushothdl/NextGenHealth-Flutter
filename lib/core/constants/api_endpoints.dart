@@ -1,6 +1,6 @@
 // lib/core/constants/api_endpoints.dart
 class ApiEndpoints {
-  static const String baseUrl = "https://4de0-117-213-148-219.ngrok-free.app";
+  static const String baseUrl = "https://4406-117-213-148-219.ngrok-free.app";
   static const String register = "$baseUrl/api/auth/register";
   static const String login = "$baseUrl/api/auth/login";
   static const String checkStatus = "$baseUrl/api/auth/status";

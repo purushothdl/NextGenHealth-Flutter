@@ -6,6 +6,7 @@ import '../../dashboard/screens/dashboard_screen.dart';
 import '../widgets/doctor_form.dart';
 import '../widgets/patient_form.dart';
 
+
 class ScreeningFormScreen extends StatefulWidget {
   const ScreeningFormScreen({super.key});
 
@@ -53,6 +54,78 @@ class _ScreeningFormScreenState extends State<ScreeningFormScreen> {
     super.dispose();
   }
 
+  Future<void> _submitForm(BuildContext context, bool isPatient) async {
+    if (_formKey.currentState?.validate() ?? false) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+      if (isPatient) {
+        final updatedData = {
+          "patient_data": {
+            "medical_history": _medicalHistoryController.text.split(','),
+            "medical_conditions": _medicalConditionsController.text.split(','),
+            "medications": _medicationsController.text.split(','),
+            "allergies": _allergiesController.text.split(','),
+            "age": double.tryParse(_ageController.text),
+            "height": double.tryParse(_heightController.text),
+            "weight": double.tryParse(_weightController.text),
+            "blood_group": _bloodGroupController.text,
+          },
+        };
+
+        final success = await authProvider.updateProfile(updatedData);
+
+        if (success && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Profile updated successfully!')),
+          );
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => const DashboardScreen(),
+            ),
+          );
+        } else if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(authProvider.error ?? 'Failed to update profile'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } else {
+        final updatedData = {
+          "doctor_data": {
+            "qualifications": _qualificationController.text.split(','),
+            "specialization": _specializationController.text.split(','),
+            "experience_years": int.tryParse(_yearsOfExperienceController.text),
+            "license_number": _licenseNumberController.text,
+            "hospital": _certificationsController.text,
+            "age": int.tryParse(_doctorAgeController.text),
+          },
+        };
+
+        final success = await authProvider.updateProfile(updatedData);
+
+        if (success && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Profile updated successfully!')),
+          );
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => const DashboardScreen(),
+            ),
+          );
+        } else if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(authProvider.error ?? 'Failed to update profile'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
@@ -60,7 +133,15 @@ class _ScreeningFormScreenState extends State<ScreeningFormScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isPatient ? 'Patient History' : 'Doctor Details'),
+        title: Text(isPatient ? 'Patient History' : 'Doctor Details', 
+          style: const 
+            TextStyle(
+              fontWeight: FontWeight.bold),
+            ),  
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -81,86 +162,28 @@ class _ScreeningFormScreenState extends State<ScreeningFormScreen> {
                 )
               else
                 DoctorForm(
-                  qualificationController: _qualificationController,
                   specializationController: _specializationController,
                   yearsOfExperienceController: _yearsOfExperienceController,
+                  qualificationController: _qualificationController,
                   licenseNumberController: _licenseNumberController,
                   certificationsController: _certificationsController,
                   ageController: _doctorAgeController,
                 ),
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: () async {
-                  if (_formKey.currentState?.validate() ?? false) {
-                    if (isPatient) {
-                      final updatedData = {
-                        "patient_data": {
-                          "medical_history": _medicalHistoryController.text.split(','),
-                          "medical_conditions": _medicalConditionsController.text.split(','),
-                          "medications": _medicationsController.text.split(','),
-                          "allergies": _allergiesController.text.split(','),
-                          "age": double.tryParse(_ageController.text),
-                          "height": double.tryParse(_heightController.text),
-                          "weight": double.tryParse(_weightController.text),
-                          "blood_group": _bloodGroupController.text,
-                        },
-                      };
-
-                      final success = await authProvider.updateProfile(updatedData);
-
-                      if (success && context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Profile updated successfully!')),
-                        );
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                            builder: (_) => const DashboardScreen(),
-                          ),
-                        );
-                      } else if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(authProvider.error ?? 'Failed to update profile'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }
-                    } else {
-                      // Handle doctor details submission
-                      final updatedData = {
-                        "doctor_data": {
-                          "qualifications":_qualificationController.text.split(','),
-                          "specialization": _specializationController.text.split(','),
-                          "experience_years": int.tryParse(_yearsOfExperienceController.text),
-                          "license_number": _licenseNumberController.text,
-                          "hospital": _certificationsController.text,
-                          "age": int.tryParse(_doctorAgeController.text),
-                        },
-                      };
-
-                      final success = await authProvider.updateProfile(updatedData);
-
-                      if (success && context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Profile updated successfully!')),
-                        );
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                            builder: (_) => const DashboardScreen(),
-                          ),
-                        );
-                      } else if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(authProvider.error ?? 'Failed to update profile'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }
-                    }
-                  }
-                },
-                child: const Text('Submit'),
+                onPressed: () => _submitForm(context, isPatient),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  'Submit',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
               ),
             ],
           ),

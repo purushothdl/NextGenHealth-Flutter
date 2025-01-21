@@ -19,7 +19,6 @@ class DashboardScreen extends StatelessWidget {
     return Scaffold(
       appBar: HeaderWidget(
         username: user?['username'] ?? 'User', 
-        role: user?['role'] ?? 'Guest', 
         profileImageUrl: user?['profileImageUrl'],
         onNotificationPressed: () {
           // Navigate to Notifications Screen

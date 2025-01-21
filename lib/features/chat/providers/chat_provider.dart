@@ -68,6 +68,7 @@ class ChatProvider extends ChangeNotifier {
 
     isLoading = true;
     error = null;
+    _activeSession = null; // Clear active session before starting a new one
     _safeNotifyListeners();
 
     try {
@@ -77,10 +78,8 @@ class ChatProvider extends ChangeNotifier {
         imagePath: imagePath,
         documentPath: documentPath,
       );
-      if (session != _activeSession) {
-        _activeSession = session;
-        _safeNotifyListeners();
-      }
+      _activeSession = session;
+      _safeNotifyListeners();
     } catch (e) {
       error = e.toString();
       _safeNotifyListeners();
@@ -137,7 +136,14 @@ class ChatProvider extends ChangeNotifier {
 
     try {
       await _chatService.deleteChatSession(sessionId);
-      _userChats.removeWhere((chat) => chat.sessionId == sessionId);
+      
+      // Clear activeSession if it matches the deleted session
+      if (_activeSession?.sessionId == sessionId) {
+        _activeSession = null;
+      }
+
+      // Remove the chat from the list
+      _userChats = _userChats.where((chat) => chat.sessionId != sessionId).toList();
       _safeNotifyListeners();
     } catch (e) {
       error = e.toString();
