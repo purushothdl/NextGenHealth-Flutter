@@ -50,8 +50,15 @@ flutter {
     source = "../.."
 }
 
+// Apply the Google Services plugin here (outside the plugins block)
+apply plugin: 'com.google.gms.google-services'
+
 dependencies {
     // Add the missing dependencies for Tink and annotations
     implementation 'com.google.errorprone:error_prone_annotations:2.18.0'
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
+
+    // Add Firebase dependencies
+    implementation platform('com.google.firebase:firebase-bom:32.2.3') // Firebase BoM
+    implementation 'com.google.firebase:firebase-analytics' // Firebase Analytics
 }

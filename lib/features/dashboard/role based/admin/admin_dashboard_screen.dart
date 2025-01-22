@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import '../../../admin/screens/pending_approvals_screen.dart';
 import '../../../admin/screens/users_screen.dart';
 import '../../../chat/screens/chat_history_screen.dart';
+import '../../../feedback and FAQ/screens/faq_screen.dart';
+import '../../../feedback and FAQ/screens/post_feedback_screen.dart';
+import '../../../feedback and FAQ/screens/view_feedback_screen.dart';
 import '../../../tickets/screens/tickets_screen.dart';
 import '../shared/blue_container.dart';
 import '../shared/feedback_card.dart';
@@ -100,6 +103,7 @@ class AdminDashboard extends StatelessWidget {
                     label: 'FAQs',
                     onPressed: () {
                       // Add functionality for View Feedback
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const FAQScreen()));
                     },
                   ),
                 ],
@@ -110,14 +114,22 @@ class AdminDashboard extends StatelessWidget {
             // Feedback Card
             FeedbackCard(
               onGiveFeedback: () {
-                print('Give Feedback button pressed!');
-                // Add your logic here for handling feedback submission
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const PostFeedbackScreen(), // Replace with your screen
+                  ),
+                );
               },
               onViewFeedback: () {
-                print('See Your Feedback button pressed!');
-                // Add your logic here for navigating to feedback history
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ViewFeedbackScreen(), // Replace with your screen
+                  ),
+                );
               },
-            )
+            ),
           ],
         ),
       ),

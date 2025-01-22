@@ -1,7 +1,10 @@
 // lib/features/dashboard/role_based/patient/patient_dashboard_screen.dart
 import 'package:flutter/material.dart';
 import 'package:next_gen_health/features/chat/screens/chat_history_screen.dart';
+import 'package:next_gen_health/features/feedback%20and%20FAQ/screens/view_feedback_screen.dart';
 import 'package:next_gen_health/features/profile/screens/profile_screen.dart';
+import '../../../feedback and FAQ/screens/faq_screen.dart';
+import '../../../feedback and FAQ/screens/post_feedback_screen.dart';
 import '../shared/blue_container.dart'; // Reusable blue container
 import '../shared/feedback_card.dart'; // Reusable feedback card
 import '../shared/service_item.dart'; // Reusable service item
@@ -97,7 +100,7 @@ class PatientDashboard extends StatelessWidget {
                     label: 'FAQs',
                     onPressed: () {
                       // Navigate to FAQScreen
-                      // Navigator.push(context, MaterialPageRoute(builder: (context) => FAQScreen()));
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const FAQScreen()));
                     },
                   ),
                 ],
@@ -106,17 +109,24 @@ class PatientDashboard extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // Feedback Card
             FeedbackCard(
               onGiveFeedback: () {
-                print('Give Feedback button pressed!');
-                // Add your logic here for handling feedback submission
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const PostFeedbackScreen(), // Replace with your screen
+                  ),
+                );
               },
               onViewFeedback: () {
-                print('See Your Feedback button pressed!');
-                // Add your logic here for navigating to feedback history
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ViewFeedbackScreen(), // Replace with your screen
+                  ),
+                );
               },
-            )
+            ),
           ],
         ),
       ),

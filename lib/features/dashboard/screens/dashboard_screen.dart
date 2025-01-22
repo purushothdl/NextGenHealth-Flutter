@@ -1,6 +1,7 @@
 // lib/features/dashboard/screens/dashboard_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../notifications/screens/notification_screen.dart';
 import '../role based/admin/admin_dashboard_screen.dart';
 import '../role based/doctor/doctor_dashboard.dart';
 import '../role based/patient/patient_dashboard.dart';
@@ -22,7 +23,7 @@ class DashboardScreen extends StatelessWidget {
         profileImageUrl: user?['profileImageUrl'],
         onNotificationPressed: () {
           // Navigate to Notifications Screen
-          // Navigator.push(context, MaterialPageRoute(builder: (context) => NotificationsScreen()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const NotificationsScreen()));
         },
       ),
       backgroundColor: Colors.white,

@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:next_gen_health/features/chat/screens/chat_history_screen.dart';
 import 'package:next_gen_health/features/profile/models/profile_model.dart';
 import 'package:next_gen_health/features/profile/screens/profile_screen.dart';
+import '../../../feedback and FAQ/screens/faq_screen.dart';
+import '../../../feedback and FAQ/screens/post_feedback_screen.dart';
+import '../../../feedback and FAQ/screens/view_feedback_screen.dart';
 import '../../../tickets/screens/tickets_screen.dart';
 import '../shared/blue_container.dart';
 import '../shared/feedback_card.dart';
@@ -107,7 +110,7 @@ class DoctorDashboard extends StatelessWidget {
                     label: 'FAQs',
                     onPressed: () {
                       // Navigate to FAQScreen
-                      // Navigator.push(context, MaterialPageRoute(builder: (context) => FAQScreen()));
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const FAQScreen()));
                     },
                   ),
                 ],
@@ -117,16 +120,24 @@ class DoctorDashboard extends StatelessWidget {
             const SizedBox(height: 24),
 
             // Feedback Card
-FeedbackCard(
-  onGiveFeedback: () {
-    print('Give Feedback button pressed!');
-    // Add your logic here for handling feedback submission
-  },
-  onViewFeedback: () {
-    print('See Your Feedback button pressed!');
-    // Add your logic here for navigating to feedback history
-  },
-)
+            FeedbackCard(
+              onGiveFeedback: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const PostFeedbackScreen(), // Replace with your screen
+                  ),
+                );
+              },
+              onViewFeedback: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ViewFeedbackScreen(), // Replace with your screen
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),

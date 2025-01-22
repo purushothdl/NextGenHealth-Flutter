@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../admin/providers/admin_provider.dart';
+import '../widgets/approval/user_approval_card.dart';
 
 class PendingApprovalsScreen extends StatefulWidget {
   const PendingApprovalsScreen({super.key});
@@ -18,7 +19,6 @@ class _PendingApprovalsScreenState extends State<PendingApprovalsScreen> {
     super.didChangeDependencies();
     if (_isInitialLoad) {
       _isInitialLoad = false;
-      // Load pending approvals when the screen is first displayed
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Provider.of<AdminProvider>(context, listen: false)
             .loadPendingApprovals(forceReload: true);
@@ -37,70 +37,71 @@ class _PendingApprovalsScreenState extends State<PendingApprovalsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pending Approvals'),
+        title: const Text('Pending Approvals', style: TextStyle(fontWeight: FontWeight.bold)),
+        centerTitle: true,
+        foregroundColor: Colors.white,
+        backgroundColor: Colors.blue,
+        elevation: 0,
       ),
       body: RefreshIndicator(
         onRefresh: _refreshData,
-        child: _buildPendingApprovalsList(adminProvider),
+        child: _buildContent(adminProvider),
       ),
     );
   }
 
-  Widget _buildPendingApprovalsList(AdminProvider adminProvider) {
+  Widget _buildContent(AdminProvider adminProvider) {
     if (adminProvider.isLoading && adminProvider.pendingApprovals.isEmpty) {
       return const Center(child: CircularProgressIndicator());
-    } else if (adminProvider.error != null) {
-      return Center(child: Text('Error: ${adminProvider.error}'));
-    } else if (adminProvider.pendingApprovals.isEmpty) {
-      return const Center(child: Text('No pending approvals found.'));
     }
 
-    return ListView.builder(
-      itemCount: adminProvider.pendingApprovals.length,
-      itemBuilder: (context, index) {
-        final user = adminProvider.pendingApprovals[index];
-        return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          elevation: 2.0,
-          child: ListTile(
-            leading: const Icon(Icons.person, color: Colors.orange),
-            title: Text(
-              user['username'],
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            subtitle: Text(user['email']),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.check, color: Colors.green),
-                  onPressed: () => _approveUser(context, user['_id']),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close, color: Colors.red),
-                  onPressed: () => _rejectUser(context, user['_id']),
-                ),
-              ],
-            ),
+    if (adminProvider.pendingApprovals.isEmpty) {
+      return Center(
+        child: Text(
+          'No pending approvals found',
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.grey.shade600,
           ),
-        );
-      },
+        ),
+      );
+    }
+
+    return ListView.separated(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      itemCount: adminProvider.pendingApprovals.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 8),
+      itemBuilder: (context, index) => UserApprovalCard(
+        user: adminProvider.pendingApprovals[index],
+        onApprove: (userId) => _handleApproval(context, userId),
+        onReject: (userId) => _handleRejection(context, userId),
+      ),
     );
   }
 
-  void _approveUser(BuildContext context, String userId) async {
+  void _handleApproval(BuildContext context, String userId) async {
     final adminProvider = Provider.of<AdminProvider>(context, listen: false);
     await adminProvider.approveUser(userId);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('User approved successfully!')),
-    );
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('User approved successfully!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
   }
 
-  void _rejectUser(BuildContext context, String userId) async {
+  void _handleRejection(BuildContext context, String userId) async {
     final adminProvider = Provider.of<AdminProvider>(context, listen: false);
     await adminProvider.rejectUser(userId);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('User rejected successfully!')),
-    );
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('User rejected successfully!'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 }

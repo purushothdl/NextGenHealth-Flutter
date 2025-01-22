@@ -1,13 +1,14 @@
 // lib/features/auth/providers/auth_provider.dart
 import 'package:flutter/material.dart';
 import '../../../core/services/api/auth_api_service.dart';
+import '../../../core/services/firebase/firebase_service.dart';
 import '../../../core/services/storage/storage_service.dart';
-import '../../chat/providers/app_state_providers.dart';
 import '../models/user_model.dart';
 
 class AuthProvider extends ChangeNotifier {
   final AuthApiService _authService = AuthApiService();
   final StorageService _storage = StorageService();
+  final FirebaseService _firebaseService = FirebaseService(); // Initialize FirebaseService
   bool isLoading = false;
   String? error;
   Map<String, dynamic>? currentUser;
@@ -18,7 +19,21 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _authService.register(user);
+      // Get FCM token internally
+      final fcmToken = await _firebaseService.getFCMToken();
+
+      // Create a new UserRegistration object with the FCM token
+      final userWithFCM = UserRegistration(
+        username: user.username,
+        email: user.email,
+        password: user.password,
+        role: user.role,
+        fcmToken: fcmToken ?? '', // Use an empty string if fcmToken is null
+      );
+
+      // Register user
+      await _authService.register(userWithFCM);
+
       isLoading = false;
       notifyListeners();
       return true;
@@ -30,35 +45,24 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<Map<String, dynamic>> checkStatus(String email) async {
-    isLoading = true;
-    error = null;
-    notifyListeners();
-
-    try {
-      final status = await _authService.checkStatus(email);
-      isLoading = false;
-      notifyListeners();
-      return status;
-    } catch (e) {
-      error = e.toString();
-      isLoading = false;
-      notifyListeners();
-      rethrow;
-    }
-  }
-
-
   Future<bool> login(String email, String password) async {
     isLoading = true;
     error = null;
     notifyListeners();
 
     try {
-      // Login and automatically store token in AuthApiService
+      // Get FCM token internally
+      final fcmToken = await _firebaseService.getFCMToken();
+
+      // Login user
       await _authService.login(email, password);
-      // Immediately fetch profile after login
+
+      // Update FCM token in backend
+      await _authService.updateFCMToken(fcmToken.toString());
+
+      // Fetch profile after login
       currentUser = await _authService.getProfile();
+
       isLoading = false;
       notifyListeners();
       return true;
@@ -107,15 +111,30 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<Map<String, dynamic>> checkStatus(String email) async {
+    isLoading = true;
+    error = null;
+    notifyListeners();
+
+    try {
+      final status = await _authService.checkStatus(email);
+      isLoading = false;
+      notifyListeners();
+      return status;
+    } catch (e) {
+      error = e.toString();
+      isLoading = false;
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+
+
   Future<void> logout() async {
     await _storage.deleteToken();
     currentUser = null;
     notifyListeners();
   }
+
 }
-
-
-
-
-
-

@@ -1,7 +1,8 @@
-// lib/features/auth/screens/status_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../widgets/auth_button.dart';
+import '../widgets/auth_form_field.dart';
 
 class StatusScreen extends StatefulWidget {
   const StatusScreen({super.key});
@@ -24,117 +25,204 @@ class _StatusScreenState extends State<StatusScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Application Status'),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Consumer<AuthProvider>(
-          builder: (context, authProvider, child) {
-            return Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text(
-                    'Check Your Application Status',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 32),
-                  TextFormField(
-                    controller: _emailController,
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
-                      hintText: 'Enter your registered email',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.email),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 400),
+              child: Consumer<AuthProvider>(
+                builder: (context, authProvider, child) {
+                  return Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.blueGrey.withOpacity(0.3),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
-                      }
-                      if (!value.contains('@')) {
-                        return 'Please enter a valid email';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: authProvider.isLoading
-                        ? null
-                        : () async {
-                            if (_formKey.currentState?.validate() ?? false) {
-                              try {
-                                final status = await authProvider.checkStatus(_emailController.text);
-                                setState(() => _status = status);
-                              } catch (e) {
-                                if (mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        authProvider.error ?? 'Failed to check status',
-                                      ),
-                                      backgroundColor: Colors.red,
-                                    ),
-                                  );
-                                }
-                              }
-                            }
-                          },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: authProvider.isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Header
+                        const Icon(
+                          Icons.assignment_outlined,
+                          size: 48,
+                          color: Colors.orange,
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Application Status',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.blue,
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Enter your registered email to check the status of your application.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.blueGrey,
+                            height: 1.4,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Form
+                        Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              AuthFormField(
+                                controller: _emailController,
+                                label: 'Email',
+                                prefixIcon: Icons.email_outlined,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter your email';
+                                  }
+                                  if (!value.contains('@')) {
+                                    return 'Please enter a valid email';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 24),
+                              AuthButton(
+                                onPressed: authProvider.isLoading
+                                    ? null
+                                    : () async {
+                                        if (_formKey.currentState!.validate()) {
+                                          await _handleStatusCheck(authProvider);
+                                        }
+                                      },
+                                text: 'Check Status',
+                              ),
+                              if (authProvider.isLoading)
+                                const Padding(
+                                  padding: EdgeInsets.all(16.0),
+                                  child: CircularProgressIndicator(),
+                                ),
+                            ],
+                          ),
+                        ),
+
+                        // Status Display
+                        if (_status != null) ...[
+                          const SizedBox(height: 24),
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
                               color: Colors.white,
-                              strokeWidth: 2,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: Colors.blue[100]!,
+                                width: 1.5,
+                              ),
                             ),
-                          )
-                        : const Text(
-                            'Check Status',
-                            style: TextStyle(fontSize: 16),
-                          ),
-                  ),
-                  if (_status != null) ...[
-                    const SizedBox(height: 32),
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.grey[300]!),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Status: ${_status!['status'] ?? 'Unknown'}',
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                          if (_status!['message'] != null) ...[
-                            const SizedBox(height: 8),
-                            Text(
-                              'Message: ${_status!['message']}',
-                              style: const TextStyle(fontSize: 16),
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    _buildStatusIcon(_status!['status']),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      _status!['status'].toUpperCase(),
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: _getStatusColor(_status!['status']),
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                if (_status!['message'] != null) ...[
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    _status!['message'],
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.blueGrey[700],
+                                      height: 1.4,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ],
                             ),
-                          ],
+                          ),
                         ],
-                      ),
+                      ],
                     ),
-                  ],
-                ],
+                  );
+                },
               ),
-            );
-          },
+            ),
+          ),
         ),
       ),
     );
+  }
+
+  Widget _buildStatusIcon(String status) {
+    final iconColor = _getStatusColor(status);
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: iconColor.withOpacity(0.1),
+        shape: BoxShape.circle,
+      ),
+      child: Icon(
+        status == 'accepted'
+            ? Icons.check_circle_rounded
+            : status == 'rejected'
+                ? Icons.cancel_rounded
+                : Icons.pending_actions_rounded,
+        size: 24,
+        color: iconColor,
+      ),
+    );
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'accepted':
+        return Colors.green;
+      case 'rejected':
+        return Colors.red;
+      case 'pending':
+        return Colors.orange;
+      default:
+        return Colors.blueGrey;
+    }
+  }
+
+  Future<void> _handleStatusCheck(AuthProvider authProvider) async {
+    try {
+      final status = await authProvider.checkStatus(_emailController.text);
+      setState(() => _status = status);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              authProvider.error ?? 'Failed to check status',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }

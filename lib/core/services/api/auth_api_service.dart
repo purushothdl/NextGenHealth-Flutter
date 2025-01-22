@@ -27,6 +27,18 @@ class AuthApiService {
     }
   }
 
+    // Add this method
+    Future<void> updateFCMToken(String? fcmToken) async {
+      try {
+        await _dio.post(
+          ApiEndpoints.updateFCMToken,
+          queryParameters: {'fcm_token': fcmToken},
+        );
+      } catch (e) {
+        throw _handleError(e);
+      }
+    }
+
 Future<Map<String, dynamic>> checkStatus(String email) async {
   try {
     final response = await _dio.get(
@@ -96,8 +108,20 @@ Future<Map<String, dynamic>> login(String email, String password) async {
       throw _handleError(e);
     }
   }
+  
+  // Add to AuthApiService class
+  Future<Map<String, dynamic>> getFAQs() async {
+    try {
+      final response = await _dio.get(ApiEndpoints.getFAQs);
+      return response.data;
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
 
 }
+
+
 
 
 String _handleError(dynamic error) {

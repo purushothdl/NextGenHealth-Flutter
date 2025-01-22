@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:next_gen_health/features/auth/screens/register_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../../auth/providers/auth_provider.dart';
@@ -138,6 +139,13 @@ class _ScreeningFormScreenState extends State<ScreeningFormScreen> {
             TextStyle(
               fontWeight: FontWeight.bold),
             ),  
+                  leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const RegisterScreen()),
+          ),
+        ),
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.blue,

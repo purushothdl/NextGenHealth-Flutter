@@ -1,6 +1,8 @@
 // lib/features/dashboard/role_based/shared/header_widget.dart
 import 'package:flutter/material.dart';
 import 'package:next_gen_health/features/shared/utils/string_utils.dart';
+import 'package:provider/provider.dart';
+import '../../../notifications/provider/notifications_provider.dart';
 import '../../../shared/utils/greeting_utils.dart';
 
 class HeaderWidget extends StatelessWidget implements PreferredSizeWidget {
@@ -17,6 +19,8 @@ class HeaderWidget extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final notificationProvider = Provider.of<NotificationProvider>(context);
+
     return AppBar(
       automaticallyImplyLeading: false,
       backgroundColor: Colors.white,
@@ -79,18 +83,38 @@ class HeaderWidget extends StatelessWidget implements PreferredSizeWidget {
 
           const Spacer(),
 
-          // Notification Icon with Badge Potential
-          Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.blue.shade50,
-            ),
-            child: IconButton(
-              icon: Icon(Icons.notifications_outlined,
-                  color: Colors.blue.shade800),
-              splashRadius: 20,
-              onPressed: onNotificationPressed,
-            ),
+          // Notification Icon with Badge
+          Stack(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.blue.shade50,
+                ),
+                child: IconButton(
+                  icon: Icon(Icons.notifications_outlined,
+                      color: Colors.blue.shade800),
+                  splashRadius: 20,
+                  onPressed: () {
+                    onNotificationPressed();
+                    notificationProvider.clearUnreadNotifications(); // Clear red dot when clicked
+                  },
+                ),
+              ),
+              if (notificationProvider.hasUnreadNotifications)
+                Positioned(
+                  right: 8,
+                  top: 8,
+                  child: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+            ],
           ),
         ],
       ),

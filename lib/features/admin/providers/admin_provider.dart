@@ -1,4 +1,7 @@
 // lib/features/admin/providers/admin_provider.dart
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import '../../../core/services/api/admin_api_service.dart';
 
@@ -50,49 +53,59 @@ class AdminProvider with ChangeNotifier {
     }
   }
 
-Future<void> loadPendingApprovals({bool forceReload = false}) async {
-  if (!forceReload && _pendingApprovals.isNotEmpty) return;
+  Future<void> loadPendingApprovals({bool forceReload = false}) async {
+    if (!forceReload && _pendingApprovals.isNotEmpty) return;
 
-  _isLoading = true;
-  notifyListeners();
+    _isLoading = true;
+    notifyListeners();
 
-  try {
-    final newPendingApprovals = await _adminApiService.getPendingApprovals();
-    if (newPendingApprovals != _pendingApprovals) {
-      _pendingApprovals = newPendingApprovals;
+    try {
+      _pendingApprovals = await _adminApiService.getPendingApprovals();
       _error = null;
-      notifyListeners(); // Only notify if the data has changed
+    } on DioException catch (e) {
+      _pendingApprovals = [];
+      if (e.response?.statusCode == 404) {
+        _error = e.response?.data['detail'] ?? 'No users found';
+      } else {
+        _error = 'An unexpected error occurred';
+      }
+    } catch (e) {
+      _pendingApprovals = [];
+      _error = 'An unexpected error occurred';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
-  } catch (e) {
-    _error = e.toString();
-    notifyListeners();
-  } finally {
-    _isLoading = false;
-    notifyListeners();
   }
-}
+
 
   Future<void> approveUser(String userId) async {
     try {
       await _adminApiService.approveUser(userId);
-      // Remove the user from pending approvals after approval
       _pendingApprovals.removeWhere((user) => user['_id'] == userId);
-      notifyListeners();
+      _error = null;
     } catch (e) {
       _error = e.toString();
-      notifyListeners();
+    } finally {
+      // Defer notifyListeners() to avoid calling it during build
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifyListeners();
+      });
     }
   }
 
   Future<void> rejectUser(String userId) async {
     try {
       await _adminApiService.rejectUser(userId);
-      // Remove the user from pending approvals after rejection
       _pendingApprovals.removeWhere((user) => user['_id'] == userId);
-      notifyListeners();
+      _error = null;
     } catch (e) {
       _error = e.toString();
-      notifyListeners();
+    } finally {
+      // Defer notifyListeners() to avoid calling it during build
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifyListeners();
+      });
     }
   }
 }
